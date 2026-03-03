@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Accessibility Setup</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            padding: 30px;
+            transition: 0.3s;
+        }
+
+        .darkMode {
+            background-color: #121212;
+            color: white;
+        }
+
+        button {
+            padding: 8px 15px;
+            margin: 5px;
+            cursor: pointer;
+        }
+
+        #progressContainer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: #ddd;
+        }
+
+        #progressBar {
+            height: 6px;
+            width: 0%;
+            background: green;
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="progressContainer">
+    <div id="progressBar"></div>
+</div>
+
+<h2>Choose Your Accessibility Preferences</h2>
+
+<button onclick="toggleTheme()">🌙 Toggle Dark/Light Mode</button>
+<button onclick="askForAudio()">🔊 Read Instructions</button>
+<button onclick="stopSpeech()">🔇 Mute</button>
+
+<br><br>
+<strong>Adjust Text Size:</strong>
+<button onclick="increaseText()">A+</button>
+<button onclick="decreaseText()">A-</button>
+
+<!-- NEW BUTTONS -->
+<br><br>
+<strong>Content Simplification:</strong>
+<button onclick="splitText()">Simplify Text</button>
+<button onclick="restoreText()">Restore Original</button>
+
+<div id="instructionText">
+    <p id="content">
+        Please configure your preferred accessibility settings. 
+        You can switch theme, adjust text size, and enable audio support! 
+        After setting your preferences, continue to registration form? 
+        This system is designed to reduce cognitive overload and improve usability.
+        <br><br><br><br><br><br>
+    </p>
+</div>
+
+<br>
+<a href="/form">
+    <button>Continue to Registration</button>
+</a>
+
+<script>
+let speech;
+let currentFontSize = 16;
+let originalText = "";
+
+/* EXISTING FEATURES */
+
+window.onload = function() {
+    let savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+        document.body.classList.add("darkMode");
+    }
+};
+
+function toggleTheme() {
+    document.body.classList.toggle("darkMode");
+    if (document.body.classList.contains("darkMode")) {
+        localStorage.setItem("theme", "dark");
+    } else {
+        localStorage.setItem("theme", "light");
+    }
+}
+
+function askForAudio() {
+    speakText();
+}
+
+function speakText() {
+    let text = document.getElementById("instructionText").innerText;
+    speech = new SpeechSynthesisUtterance(text);
+    window.speechSynthesis.speak(speech);
+}
+
+function stopSpeech() {
+    window.speechSynthesis.cancel();
+}
+
+function increaseText() {
+    currentFontSize += 2;
+    document.getElementById("instructionText").style.fontSize = currentFontSize + "px";
+}
+
+function decreaseText() {
+    if (currentFontSize > 10) {
+        currentFontSize -= 2;
+        document.getElementById("instructionText").style.fontSize = currentFontSize + "px";
+    }
+}
+
+window.onscroll = function() {
+    let winScroll = document.documentElement.scrollTop;
+    let height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    let scrolled = (winScroll / height) * 100;
+    document.getElementById("progressBar").style.width = scrolled + "%";
+};
+
+/* NEW FEATURE – Sentence Splitting */
+
+function splitText() {
+
+    const contentDiv = document.getElementById("content");
+
+    if (originalText === "") {
+        originalText = contentDiv.innerHTML;
+    }
+
+    let text = contentDiv.innerText;
+
+    let sentences = text.split(/(?<=[.!?])\s+/);
+
+    contentDiv.innerHTML = "";
+
+    sentences.forEach(sentence => {
+        if (sentence.trim() !== "") {
+            let p = document.createElement("p");
+            p.textContent = sentence.trim();
+            p.style.marginBottom = "10px";
+            contentDiv.appendChild(p);
+        }
+    });
+}
+
+function restoreText() {
+
+    const contentDiv = document.getElementById("content");
+
+    if (originalText !== "") {
+        contentDiv.innerHTML = originalText;
+    }
+}
+</script>
+
+</body>
+</html>

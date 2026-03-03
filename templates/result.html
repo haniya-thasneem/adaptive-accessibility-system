@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Welcome</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            padding: 30px;
+            transition: 0.3s;
+        }
+
+        .darkMode {
+            background-color: #121212;
+            color: white;
+        }
+
+        button {
+            padding: 8px 15px;
+            margin: 5px;
+            cursor: pointer;
+        }
+
+        .box {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid gray;
+            border-radius: 10px;
+        }
+
+        #progressContainer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: #ddd;
+        }
+
+        #progressBar {
+            height: 6px;
+            width: 0%;
+            background: green;
+        }
+
+        #progressText {
+            position: fixed;
+            top: 8px;
+            right: 15px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="progressContainer">
+    <div id="progressBar"></div>
+</div>
+<div id="progressText">0%</div>
+
+<h2>Welcome {{ name }} 🎉</h2>
+
+<div class="box">
+    <h3>Your Submitted Details:</h3>
+    <p><strong>Name:</strong> {{ name }}</p>
+    <p><strong>Email:</strong> {{ email }}</p>
+    <p><strong>USN:</strong> {{ usn }}</p>
+</div>
+
+<div class="box">
+    <h3>Accessibility Options:</h3>
+
+    <button onclick="toggleTheme()">🌙 Toggle Dark/Light Mode</button>
+    <button onclick="askForAudio()">🔊 Enable Audio Instructions</button>
+    <button onclick="stopSpeech()">🔇 Mute</button>
+
+    <br><br>
+    <strong>Adjust Text Size:</strong>
+    <button onclick="increaseText()">A+</button>
+    <button onclick="decreaseText()">A-</button>
+</div>
+
+<div class="box">
+    <h3>Instructions:</h3>
+    <p id="instructionText">
+        Please read the instructions carefully.
+        Complete your hackathon task before the deadline.
+        You may switch between light and dark mode anytime.
+        If you need assistance, enable audio support.
+        Scroll down to see reading progress percentage.
+        This platform adapts to your accessibility needs.
+        <br><br><br><br><br><br><br><br>
+    </p>
+</div>
+
+<br>
+<a href="/">Go Back Home</a>
+
+<script>
+let speech;
+let currentFontSize = 16;
+
+// Load saved theme on page load
+window.onload = function() {
+    let savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+        document.body.classList.add("darkMode");
+    }
+};
+
+// Save theme preference
+function toggleTheme() {
+    document.body.classList.toggle("darkMode");
+
+    if (document.body.classList.contains("darkMode")) {
+        localStorage.setItem("theme", "dark");
+    } else {
+        localStorage.setItem("theme", "light");
+    }
+}
+
+// Ask before reading
+function askForAudio() {
+    let choice = confirm("Do you want audio assistance?");
+    if (choice) {
+        speakText();
+    }
+}
+
+function speakText() {
+    let text = document.getElementById("instructionText").innerText;
+    speech = new SpeechSynthesisUtterance(text);
+    window.speechSynthesis.speak(speech);
+}
+
+function stopSpeech() {
+    window.speechSynthesis.cancel();
+}
+
+// Text size
+function increaseText() {
+    currentFontSize += 2;
+    document.getElementById("instructionText").style.fontSize = currentFontSize + "px";
+}
+
+function decreaseText() {
+    if (currentFontSize > 10) {
+        currentFontSize -= 2;
+        document.getElementById("instructionText").style.fontSize = currentFontSize + "px";
+    }
+}
+
+// Scroll progress
+window.onscroll = function() {
+    let winScroll = document.documentElement.scrollTop;
+    let height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    let scrolled = (winScroll / height) * 100;
+
+    document.getElementById("progressBar").style.width = scrolled + "%";
+    document.getElementById("progressText").innerText = Math.round(scrolled) + "%";
+};
+</script>
+
+</body>
+</html>
